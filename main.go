@@ -22,7 +22,7 @@ func main() {
 	name, _ := os.Hostname()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Processing request")
+		log.Printf("Processing request: %v %v %v", r.Method, r.URL, r.Proto)
 		fmt.Fprintf(w, "Timestamp: %q\n", time.Now().Format(time.RFC850))
 		fmt.Fprintf(w, "Hostname: %q\n\n", html.EscapeString(name))
 		keys := make([]string, len(r.Header))
@@ -75,14 +75,10 @@ func main() {
 	}
 
 	tlsConfig := &tls.Config{
-		// Reject any TLS certificate that cannot be validated
-		ClientAuth:   tls.RequireAndVerifyClientCert,
 		CipherSuites: []uint16{tlsCipherMap[os.Getenv("TLS_CIPHER")]},
-		// Force it server side
 		PreferServerCipherSuites: true,
 		MinVersion:               tlsMinVersionMap[os.Getenv("TLS_MIN_VERSION")],
 	}
-
 	tlsConfig.BuildNameToCertificate()
 
 	httpServer := &http.Server{
