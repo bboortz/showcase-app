@@ -1,0 +1,106 @@
+{{ define "content" }}
+
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+    <p>
+        <h3>Query Debugger</h3>
+
+<div class="container">
+  <form id="my-form" onSubmit="return postMyFormData();">
+    <div class="form-group row">
+      <label for="optionget" class="col-sm-2 col-form-label">Query type</label>
+      <div class="col-sm-10">
+
+<div class="btn-group" data-toggle="buttons">
+  <label class="btn btn-primary active">
+    <input type="radio" name="options" id="optionget" autocomplete="off" value="GET" checked> GET
+  </label>
+  <label class="btn btn-primary">
+    <input type="radio" name="options" id="optionpost" autocomplete="off" value="POST"> POST
+  </label>
+  <label class="btn btn-primary">
+    <input type="radio" name="options" id="optionput" autocomplete="off" value="PUT"> PUT
+  </label>
+  <label class="btn btn-primary">
+    <input type="radio" name="options" id="optiondelete" autocomplete="off" value="DELETE"> DELETE
+  </label>
+  <label class="btn btn-primary">
+    <input type="radio" name="options" id="optionhead" autocomplete="off" value="HEAD"> HEAD
+  </label>
+  <label class="btn btn-primary">
+    <input type="radio" name="options" id="optionoptions" autocomplete="off" value="OPTIONS"> OPTIONS
+  </label>
+</div>
+
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="inputUrl" class="col-sm-2 col-form-label">URL</label>
+      <div class="col-sm-10">
+         <input class="form-control" type="text" value="/" id="inputUrl">
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="inputData" class="col-sm-2">Data</label>
+      <div class="col-sm-10">
+      	<textarea class="form-control" id="inputData" rows="1"></textarea>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <div class="offset-sm-2 col-sm-10">
+        <button type="submit" class="btn btn-primary">Test</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+
+<script>
+function postMyFormData() {
+    var response = '';
+    try {
+    response=jQuery.parseJSON($('#inputData').val());
+    }
+    catch(err) {
+        response = 'error';
+    }
+    if(typeof response =='object') {
+	$.ajax({
+	        type: $('input[name=options]:checked', '#my-form').val(),
+        	url: $('#inputUrl').val() + '?nohtml=true',
+	        data: $('#inputData').val(),
+        	success: function(result) {
+                  $('#response').html(result);
+                },
+
+	        dataType: "json",
+        	contentType : "application/json; charset=utf-8"
+    	});
+    } else {
+  	  $.ajax({
+        	type: $('input[name=options]:checked', '#my-form').val(),
+	        url: $('#inputUrl').val() + '?nohtml=true',
+        	data: $('#inputData').val(),
+	        success: function(result) { 
+                  $('#response').html(result);
+                },
+        	dataType: "text",
+	        contentType : "text/plain"
+    	});
+    }
+    return false;
+}
+</script>
+    </p>
+    <p> 
+    <div id="response" style="word-wrap: break-word;"></div>
+    </p>
+</div>
+
+{{ end }}
+
+{{ define "head" }}
+  <!--Show ability to set title with the same data-->
+  <title>{{printf "%s" .Title}}</title>
+{{ end }}

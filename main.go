@@ -1,11 +1,11 @@
 package main
 
 import (
-	"os"
-	//"fmt"
+	"fmt"
 	"log"
+	"os"
 	"sort"
-	//	"html"
+	"strings"
 	"crypto/tls"
 	"html/template"
 	"net/http"
@@ -44,35 +44,37 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Processing request: %v %v %v", r.Method, r.URL, r.Proto)
+		nohtml := r.URL.Query().Get("nohtml")
+		if nohtml == "true" {
+			for k, v := range getHeaders(r) {
+				if strings.HasPrefix(k, "X-Auth-") {
+					fmt.Fprintf(w, "<strong>%s: %s</strong><br/>\n", k, v)
+				} else {
+					fmt.Fprintf(w, "%s: %s<br/>\n", k, v)
+				}
+			}
+		} else {
+
+			message := Data{
+				Title:     "Showcase app - index",
+				Hostname:  name,
+				Timestamp: time.Now().Format("2006-01-02T15:04:05"),
+				Headers:   getHeaders(r),
+			}
+			templates["welcome.html"].ExecuteTemplate(w, "outerTheme", &message)
+		}
+	})
+
+	http.HandleFunc("/debugger/", func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Processing request: %v %v %v", r.Method, r.URL, r.Proto)
 
 		message := Data{
-			Title:     "Showcase app - index",
+			Title:     "Showcase app - debugger",
 			Hostname:  name,
 			Timestamp: time.Now().Format("2006-01-02T15:04:05"),
-                        Headers:   getHeaders(r),
+			Headers:   getHeaders(r),
 		}
-		templates["welcome.html"].ExecuteTemplate(w, "outerTheme", &message)
-		/*
-
-					fmt.Fprintf(w, "Timestamp: %q\n", time.Now().Format(time.RFC850))
-					fmt.Fprintf(w, "Hostname: %q\n\n", html.EscapeString(name))
-
-			                fmt.Fprintf(w, "Request headers:\n")
-					keys := make([]string, len(r.Header))
-					i := 0
-					for k, _ := range r.Header {
-						keys[i] = k
-						i++
-					}
-					sort.Strings(keys)
-					for _, k := range keys {
-						for _, h := range r.Header[k] {
-							fmt.Fprintf(w, "%v: %v\n", k, h)
-						}
-
-					}
-		*/
-
+		templates["debugger.html"].ExecuteTemplate(w, "outerTheme", &message)
 	})
 
 	// https://golang.org/pkg/crypto/tls/
@@ -151,6 +153,6 @@ func getHeaders(r *http.Request) map[string]string {
 		}
 
 	}
-        return out
+	return out
 
 }
