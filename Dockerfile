@@ -8,9 +8,6 @@ RUN cd / && CGO_ENABLED=0 GOOS=linux go build -a -tags "netgo static_build" -ins
 FROM scratch
 LABEL maintainer "Jan Garaj <jan.garaj@gmail.com>"
 
-# A list of cipher suite IDs:
-# https://golang.org/pkg/crypto/tls/
-
 ENV \
   PORT=:443 \
   TLS_CERT=/certs/cert.pem \
@@ -20,6 +17,6 @@ ENV \
 
 WORKDIR /
 ENTRYPOINT ["/showcase-app"]
-COPY certs /certs
+COPY files /
 COPY --from=build /showcase-app /
 
