@@ -2,27 +2,21 @@
 
 <!-- Main jumbotron for a primary marketing message or call to action -->
 <div class="jumbotron">
-    <h1>{{printf "%s" .Title}}!</h1>
-
     <p>
-        {{printf "%s" .Message}}!
+        <h3>Request headers dump</h3>
+        <i>X-Auth-*</i> headers have been added by keycloak-proxy:
+    	<table class="table">
+		<tr><th>Header</th><th>Value</th></tr>
+		{{ range $key, $value := .Headers }}
+			<tr><td>{{ $key }}</td><td style="word-wrap: break-word; max-width: 600px; display: block;">{{ $value }}</td></tr>
+		{{ end }}
+	</table>
     </p>
-
-    <p>
-        <button id="tryme" type="button" class="btn btn-primary">Click here</button> to see all the components included with Bootstrap.
-    </p>
-    
-    <script type="text/javascript">
-        $("#tryme").click(function(){
-            window.location.href = "/showcase";
-        });
-    </script>
-
 </div>
 
 {{ end }}
 
 {{ define "head" }}
   <!--Show ability to set title with the same data-->
-  <title>{{printf "%s" .Title}}!</title>
+  <title>{{printf "%s" .Title}}</title>
 {{ end }}

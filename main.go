@@ -2,25 +2,27 @@ package main
 
 import (
 	"os"
-//	"fmt"
+	//"fmt"
 	"log"
-//	"sort"
-//	"html"
-//	"time"
-        "net/http"
-        "crypto/tls"
-        "html/template"
-        "path/filepath"
+	"sort"
+	//	"html"
+	"crypto/tls"
+	"html/template"
+	"net/http"
+	"path/filepath"
+	"time"
 )
 
 type Header struct {
-    Key string
-    Value string
+	Key   string
+	Value string
 }
 
-type Welcome struct {
-	Title   string
-	Message string
+type Data struct {
+	Title     string
+	Hostname  string
+	Timestamp string
+	Headers   map[string]string
 }
 
 var templates = make(map[string]*template.Template)
@@ -32,49 +34,44 @@ func main() {
 	for _, pair := range os.Environ() {
 		log.Printf("Env variable: %s\n", pair)
 	}
-        
-        initializeTemplates()
 
-	//name, _ := os.Hostname()
+	initializeTemplates()
+	name, _ := os.Hostname()
 
 	// static files handling
-  	fs := http.FileServer(http.Dir("static"))
-  	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Processing request: %v %v %v", r.Method, r.URL, r.Proto)
-                
-                message := Welcome{Title: "Bootstrap, Go, and GAE", Message: "Bootstrap added to Golang on App Engine.  Feel free to customize further"}
-                templates["welcome.html"].ExecuteTemplate(w, "outerTheme", &message)
-/*
-                t := template.New("tmpl/index.html")
-                log.Printf("111")
-                t, _ = t.ParseFiles("tmpl/index.html")
-                log.Printf("222")
-                p := Header{Key: "Testkey", Value: "Testvalue"}
-                t.Execute(w, p)
-                log.Printf("333")
-*/
-                /*
 
-		fmt.Fprintf(w, "Timestamp: %q\n", time.Now().Format(time.RFC850))
-		fmt.Fprintf(w, "Hostname: %q\n\n", html.EscapeString(name))
-
-                fmt.Fprintf(w, "Request headers:\n")
-		keys := make([]string, len(r.Header))
-		i := 0
-		for k, _ := range r.Header {
-			keys[i] = k
-			i++
+		message := Data{
+			Title:     "Showcase app - index",
+			Hostname:  name,
+			Timestamp: time.Now().Format("2006-01-02T15:04:05"),
+                        Headers:   getHeaders(r),
 		}
-		sort.Strings(keys)
-		for _, k := range keys {
-			for _, h := range r.Header[k] {
-				fmt.Fprintf(w, "%v: %v\n", k, h)
-			}
+		templates["welcome.html"].ExecuteTemplate(w, "outerTheme", &message)
+		/*
 
-		}
-                */
+					fmt.Fprintf(w, "Timestamp: %q\n", time.Now().Format(time.RFC850))
+					fmt.Fprintf(w, "Hostname: %q\n\n", html.EscapeString(name))
+
+			                fmt.Fprintf(w, "Request headers:\n")
+					keys := make([]string, len(r.Header))
+					i := 0
+					for k, _ := range r.Header {
+						keys[i] = k
+						i++
+					}
+					sort.Strings(keys)
+					for _, k := range keys {
+						for _, h := range r.Header[k] {
+							fmt.Fprintf(w, "%v: %v\n", k, h)
+						}
+
+					}
+		*/
 
 	})
 
@@ -112,7 +109,7 @@ func main() {
 	}
 
 	tlsConfig := &tls.Config{
-		CipherSuites: []uint16{tlsCipherMap[os.Getenv("TLS_CIPHER")]},
+		CipherSuites:             []uint16{tlsCipherMap[os.Getenv("TLS_CIPHER")]},
 		PreferServerCipherSuites: true,
 		MinVersion:               tlsMinVersionMap[os.Getenv("TLS_MIN_VERSION")],
 	}
@@ -137,4 +134,23 @@ func initializeTemplates() {
 	for _, layout := range layouts {
 		templates[filepath.Base(layout)] = template.Must(template.ParseFiles(layout, "templates/layouts/theme.html"))
 	}
+}
+
+func getHeaders(r *http.Request) map[string]string {
+	out := make(map[string]string)
+	keys := make([]string, len(r.Header))
+	i := 0
+	for k, _ := range r.Header {
+		keys[i] = k
+		i++
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		for _, h := range r.Header[k] {
+			out[k] = h
+		}
+
+	}
+        return out
+
 }
