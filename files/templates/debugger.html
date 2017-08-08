@@ -65,8 +65,9 @@ $('#load').on('click', function() {
 function postMyFormData() {
     var response = '';
     $('#response').hide();
+    $('#responsecode').hide();
     try {
-    response=jQuery.parseJSON($('#inputData').val());
+        response=jQuery.parseJSON($('#inputData').val());
     }
     catch(err) {
         response = 'error';
@@ -76,10 +77,14 @@ function postMyFormData() {
 	        type: $('input[name=options]:checked', '#my-form').val(),
         	url: $('#inputUrl').val() + '?nohtml=true',
 	        data: $('#inputData').val(),
-        	success: function(result) {
+        	success: function(result, code) {
                   $('#response').html(result);
+                  $('#responsecode').html("HTTP response code: 200");
                 },
-
+                error: function(jqxhr, code) {
+                  $('#response').html("");
+                  $('#responsecode').html("HTTP response code: " + jqxhr.status);
+                },
 	        dataType: "json",
         	contentType : "application/json; charset=utf-8"
     	});
@@ -88,14 +93,20 @@ function postMyFormData() {
         	type: $('input[name=options]:checked', '#my-form').val(),
 	        url: $('#inputUrl').val() + '?nohtml=true',
         	data: $('#inputData').val(),
-	        success: function(result) { 
+	        success: function(result, code) { 
                   $('#response').html(result);
+                  $('#responsecode').html("HTTP response code: 200");
+                },
+                error: function(jqxhr, code) {
+                  $('#response').html("")
+                  $('#responsecode').html("HTTP response code: " + jqxhr.status);
                 },
         	dataType: "text",
 	        contentType : "text/plain"
     	});
     }
     $('#response').show();
+    $('#responsecode').show();
     $('#load').button('reset');
     return false;
 }
@@ -123,6 +134,7 @@ function createCookie(name,value,days) {
 </script>
     </p>
     <p> 
+     <div id="responsecode" style="word-wrap: break-word;"></div><br/>
     <div id="response" style="word-wrap: break-word;"></div>
     </p>
 </div>
