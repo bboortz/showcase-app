@@ -1,0 +1,51 @@
+{{ define "content" }}
+
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+    <p>
+        <h4>How to test your keycloak-proxy auth?</h4>
+        First try to identify if your system needs some public access without authentication.
+        It means that some resources will be accessible without authentication.
+        In very rare cases it can be, for example, access to your static files, such as css, js, etc.
+        It is a good practise to authenticate all resources - keycloak-proxy settings for that:
+        <pre>
+        resources:
+        - uri: /*
+        </pre>
+
+        If you need to authenticate API services, you may need specific keycloak-proxy setting for authentication redirect:
+        <pre>
+        no-redirects: true
+        </pre>
+        With this setting keycloak-proxy will respond with response code 401 (Unauthorized),
+        when no access token or not valid access token is provided. This behaviour is more machine friendlier, than standard 
+        HTTP redirect to the identity provider login page.
+         
+
+        <h4>How to use query debugger?</h4>
+        <a href=/debugger/>Query debugger</a> displays received headers from the request.
+        It will show if performed request contains any auth (<i>X-Auth*</i> headers) or not.<br/>
+        First select your request type and URL resource path, optionally you can specify data (payload).
+        In the response you can see which kind of headers have been received by showcase app.
+        All headers which start with <i>X-Auth</i> have been inserted by keycloak-proxy.
+        Eventually, you can delete any of auth cookies. The keycloak-proxy will detect missing cookies and it will react to that problem accordingly.
+<!--
+        <h4>Current headers</h4>
+        List of current request headers received by showcase app:
+        <table class="table">
+                <tr><th>Header</th><th>Value</th></tr>
+                {{ range $key, $value := .Headers }}
+                        <tr><td>{{ $key }}</td><td style="word-wrap: break-word; max-width: 600px; display: block;">{{ $value }}</td></tr>
+                {{ end }}
+        </table>
+-->        
+
+    </p>
+</div>
+
+{{ end }}
+
+{{ define "head" }}
+  <!--Show ability to set title with the same data-->
+  <title>{{printf "%s" .Title}}</title>
+{{ end }}

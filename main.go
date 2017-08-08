@@ -1,22 +1,17 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
+	"html/template"
 	"log"
+	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
-	"crypto/tls"
-	"html/template"
-	"net/http"
-	"path/filepath"
 	"time"
 )
-
-type Header struct {
-	Key   string
-	Value string
-}
 
 type Data struct {
 	Title     string
@@ -46,11 +41,22 @@ func main() {
 		log.Printf("Processing request: %v %v %v", r.Method, r.URL, r.Proto)
 		nohtml := r.URL.Query().Get("nohtml")
 		if nohtml == "true" {
-			for k, v := range getHeaders(r) {
-				if strings.HasPrefix(k, "X-Auth-") {
-					fmt.Fprintf(w, "<strong>%s: %s</strong><br/>\n", k, v)
-				} else {
-					fmt.Fprintf(w, "%s: %s<br/>\n", k, v)
+
+			keys := make([]string, len(r.Header))
+			i := 0
+			for k, _ := range r.Header {
+				keys[i] = k
+				i++
+			}
+			sort.Strings(keys)
+			for _, k := range keys {
+				for _, v := range r.Header[k] {
+					if strings.HasPrefix(k, "X-Auth-") {
+						fmt.Fprintf(w, "<strong>%s: %s</strong><br/>\n", k, v)
+					} else {
+						fmt.Fprintf(w, "%s: %s<br/>\n", k, v)
+					}
+
 				}
 			}
 		} else {
@@ -61,7 +67,7 @@ func main() {
 				Timestamp: time.Now().Format("2006-01-02T15:04:05"),
 				Headers:   getHeaders(r),
 			}
-			templates["welcome.html"].ExecuteTemplate(w, "outerTheme", &message)
+			templates["headers.html"].ExecuteTemplate(w, "outerTheme", &message)
 		}
 	})
 
