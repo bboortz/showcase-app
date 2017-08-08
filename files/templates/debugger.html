@@ -43,7 +43,7 @@
 
     <div class="form-group row">
       <div class="col-sm-2 col-form-label">
-        <button type="submit" class="btn btn-primary">Execute query</button>
+        <button type="submit" class="btn btn-primary btn-lg" id="load" data-loading-text="<i class='fa fa-spinner fa-spin'></i>Processing">Execute query</button>
       </div>
       <div class="col-sm-10">
         <a href="#" onClick="deleteCookie('kc-access'); deleteCookie('kc-state'); return false;">Delete keycloak auth cookies <i>kc-access, kc-state</i></a>
@@ -54,8 +54,17 @@
 
 
 <script>
+$('#load').on('click', function() {
+    var $this = $(this);
+    $this.button('loading');
+    setTimeout(function() {
+       $this.button('reset');
+   }, 8000);
+});
+
 function postMyFormData() {
     var response = '';
+    $('#response').hide();
     try {
     response=jQuery.parseJSON($('#inputData').val());
     }
@@ -86,6 +95,8 @@ function postMyFormData() {
 	        contentType : "text/plain"
     	});
     }
+    $('#response').show();
+    $('#load').button('reset');
     return false;
 }
 

@@ -62,7 +62,7 @@ func main() {
 		} else {
 
 			message := Data{
-				Title:     "Showcase app - index",
+				Title:     "Showcase App - Index",
 				Hostname:  name,
 				Timestamp: time.Now().Format("2006-01-02T15:04:05"),
 				Headers:   getHeaders(r),
@@ -75,7 +75,7 @@ func main() {
 		log.Printf("Processing request: %v %v %v", r.Method, r.URL, r.Proto)
 
 		message := Data{
-			Title:     "Showcase app - debugger",
+			Title:     "Showcase App - Query Debugger",
 			Hostname:  name,
 			Timestamp: time.Now().Format("2006-01-02T15:04:05"),
 			Headers:   getHeaders(r),
