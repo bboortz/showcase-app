@@ -18,6 +18,7 @@ type Data struct {
 	Hostname  string
 	Timestamp string
 	Headers   map[string]string
+        User      string
 }
 
 var templates = make(map[string]*template.Template)
@@ -67,6 +68,9 @@ func main() {
 				Timestamp: time.Now().Format("2006-01-02T15:04:05"),
 				Headers:   getHeaders(r),
 			}
+                        if _, ok := r.Header["X-Auth-Username"]; ok {
+                            message.User = r.Header.Get("X-Auth-Username")
+                        }
 			templates["headers.html"].ExecuteTemplate(w, "outerTheme", &message)
 		}
 	})
