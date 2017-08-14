@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+        "strconv"
 	"strings"
 	"time"
 )
@@ -162,9 +163,14 @@ func main() {
 	}
 	tlsConfig.BuildNameToCertificate()
 
+        // timeouts https://blog.cloudflare.com/the-complete-guide-to-golang-net-http-timeouts/
+        readTimeout, _ := strconv.Atoi(os.Getenv("READ_TIMEOUT"))
+        writeTimeout, _ := strconv.Atoi(os.Getenv("WRITE_TIMEOUT"))
 	httpServer := &http.Server{
 		Addr:      os.Getenv("PORT"),
 		TLSConfig: tlsConfig,
+                ReadTimeout: time.Duration(readTimeout) * time.Second,
+                WriteTimeout: time.Duration(writeTimeout) * time.Second,
 	}
 
 	log.Fatal(httpServer.ListenAndServeTLS(os.Getenv("TLS_CERT"), os.Getenv("TLS_KEY")))

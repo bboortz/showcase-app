@@ -25,6 +25,8 @@ docker run \
 | Env variable | Default value | Description |
 | :----------: | :-----------: | :---------: |
 | PORT | *443* | TCP port of app |
+| READ_TIMEOUT | 60 | Time from when the connection is accepted to when the request body is fully read (if you do read the body, otherwise to the end of the headers). |
+| WRITE_TIMEOUT | 600 |  Time from the end of the request header read to the end of the response write. |
 | TLS_CERT | */certs/cert.pem* | TLS certificate |
 | TLS_KEY | */certs/key.pem* | TLS key |
 | TLS_MIN_VERSION | *VersionTLS12* | Minimum SSL/TLS version that is acceptable.<br>[Possible values](https://golang.org/pkg/crypto/tls/):<br>*VersionTLS10, VersionTLS11, VersionTLS12, VersionSSL30* |

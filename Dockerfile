@@ -10,6 +10,8 @@ LABEL maintainer "Jan Garaj <jan.garaj@gmail.com>"
 
 ENV \
   PORT=:443 \
+  READ_TIMEOUT=60 \
+  WRITE_TIMEOUT=600 \
   TLS_CERT=/certs/cert.pem \
   TLS_KEY=/certs/key.pem \
   TLS_MIN_VERSION=VersionTLS12 \
