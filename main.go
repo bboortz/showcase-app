@@ -18,7 +18,7 @@ type Data struct {
 	Hostname  string
 	Timestamp string
 	Headers   map[string]string
-        User      string
+	User      string
 }
 
 var templates = make(map[string]*template.Template)
@@ -68,11 +68,46 @@ func main() {
 				Timestamp: time.Now().Format("2006-01-02T15:04:05"),
 				Headers:   getHeaders(r),
 			}
-                        if _, ok := r.Header["X-Auth-Username"]; ok {
-                            message.User = r.Header.Get("X-Auth-Username")
-                        }
+			if _, ok := r.Header["X-Auth-Username"]; ok {
+				message.User = r.Header.Get("X-Auth-Username")
+			}
 			templates["headers.html"].ExecuteTemplate(w, "outerTheme", &message)
 		}
+	})
+
+	http.HandleFunc("/logout/", func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Processing request: %v %v %v", r.Method, r.URL, r.Proto)
+		nohtml := r.URL.Query().Get("nohtml")
+		if nohtml == "true" {
+
+			keys := make([]string, len(r.Header))
+			i := 0
+			for k, _ := range r.Header {
+				keys[i] = k
+				i++
+			}
+			sort.Strings(keys)
+			for _, k := range keys {
+				for _, v := range r.Header[k] {
+					if strings.HasPrefix(k, "X-Auth-") {
+						fmt.Fprintf(w, "<strong>%s: %s</strong><br/>\n", k, v)
+					} else {
+						fmt.Fprintf(w, "%s: %s<br/>\n", k, v)
+					}
+
+				}
+			}
+		} else {
+
+			message := Data{
+				Title:     "Showcase App - Index",
+				Hostname:  name,
+				Timestamp: time.Now().Format("2006-01-02T15:04:05"),
+				Headers:   getHeaders(r),
+			}
+			templates["logout.html"].ExecuteTemplate(w, "outerTheme", &message)
+		}
+
 	})
 
 	http.HandleFunc("/debugger/", func(w http.ResponseWriter, r *http.Request) {
