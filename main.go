@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-        "strconv"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -156,21 +156,27 @@ func main() {
 		"VersionTLS12": tls.VersionTLS12,
 	}
 
+	ciphers := strings.Split(os.Getenv("TLS_CIPHER"), "|")
+	cipherSuites := []uint16{}
+	for _, cipher := range ciphers {
+		cipherSuites = append(cipherSuites, tlsCipherMap[cipher])
+	}
+
 	tlsConfig := &tls.Config{
-		CipherSuites:             []uint16{tlsCipherMap[os.Getenv("TLS_CIPHER")]},
+		CipherSuites:             cipherSuites,
 		PreferServerCipherSuites: true,
 		MinVersion:               tlsMinVersionMap[os.Getenv("TLS_MIN_VERSION")],
 	}
 	tlsConfig.BuildNameToCertificate()
 
-        // timeouts https://blog.cloudflare.com/the-complete-guide-to-golang-net-http-timeouts/
-        readTimeout, _ := strconv.Atoi(os.Getenv("READ_TIMEOUT"))
-        writeTimeout, _ := strconv.Atoi(os.Getenv("WRITE_TIMEOUT"))
+	// timeouts https://blog.cloudflare.com/the-complete-guide-to-golang-net-http-timeouts/
+	readTimeout, _ := strconv.Atoi(os.Getenv("READ_TIMEOUT"))
+	writeTimeout, _ := strconv.Atoi(os.Getenv("WRITE_TIMEOUT"))
 	httpServer := &http.Server{
-		Addr:      os.Getenv("PORT"),
-		TLSConfig: tlsConfig,
-                ReadTimeout: time.Duration(readTimeout) * time.Second,
-                WriteTimeout: time.Duration(writeTimeout) * time.Second,
+		Addr:         os.Getenv("PORT"),
+		TLSConfig:    tlsConfig,
+		ReadTimeout:  time.Duration(readTimeout) * time.Second,
+		WriteTimeout: time.Duration(writeTimeout) * time.Second,
 	}
 
 	log.Fatal(httpServer.ListenAndServeTLS(os.Getenv("TLS_CERT"), os.Getenv("TLS_KEY")))
